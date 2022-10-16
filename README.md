@@ -1,2 +1,4 @@
-# Email Password Authentication
+# Email Password Auth
+
+### Verified Register
 
