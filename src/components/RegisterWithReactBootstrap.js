@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
+import { createUserWithEmailAndPassword, getAuth, sendEmailVerification, updateProfile } from 'firebase/auth';
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -16,10 +16,12 @@ const RegisterWithReactBootstrap = () => {
         setSuccess(false);
 
         const form = event.target;
+        const name = form.name.value;
         const email = form.email.value;
         const password = form.password.value;
-        console.log(email, password);
+        console.log(name, email, password);
 
+        // validate password
         if (!/(?=.*[A-Z].*[A-Z])/.test(password)) {
             setPassError('Please provide at least two uppercase')
             return
@@ -40,17 +42,41 @@ const RegisterWithReactBootstrap = () => {
                 console.log(user);
                 setSuccess(true);
                 form.reset();
+                verifyEmail();
+                updateUser(name);
             })
             .catch(error => {
                 console.log(error);
                 setPassError(error.message)
-                setSuccess(false);
             })
     }
+
+    const verifyEmail = () => {
+        sendEmailVerification(auth.currentUser)
+            .then(() => {
+                alert('Check your mail and verify')
+            })
+    }
+
+    const updateUser = (name) => {
+        updateProfile(auth.currentUser, {
+            displayName: name
+        })
+            .then(() => {
+                console.log('display name updated');
+            })
+            .catch(error => console.log(error))
+    }
+
     return (
         <div className='w-50 mx-auto'>
             <h3 className='text-primary'>Please Register!!!</h3>
             <Form onSubmit={handleRegister}>
+                <Form.Group className="mb-3" controlId="formBasicEmail">
+                    <Form.Label>Your Name</Form.Label>
+                    <Form.Control type="text" name="name" placeholder="Name" required />
+                </Form.Group>
+
                 <Form.Group className="mb-3" controlId="formBasicEmail">
                     <Form.Label>Email address</Form.Label>
                     <Form.Control type="email" name="email" placeholder="Enter email" required />
